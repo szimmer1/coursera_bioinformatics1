@@ -8,7 +8,7 @@ dependencies
 
 installation
 
-    git clone git@github.com.szimmer1/coursera_bioinformatics1
+    git clone git@github.com:szimmer1/coursera_bioinformatics1.git
     cd coursera_bioinformatics
     npm install
     bower install

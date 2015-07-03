@@ -1,2 +1,5 @@
+.idea
+DS_Store
 py
 node_modules
+bower_components
