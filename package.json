@@ -1,0 +1,11 @@
+{
+  "name":"coursera_bioinformatics1",
+  "description": "Bioinformatics1",
+  "version": "0.0.1",
+  "private": "false",
+  "author": "https://github.com/szimmer1",
+  "dependencies": {
+    "bower": "~1.3.8",
+    "browserify": "~10.2.4"
+  }
+}
