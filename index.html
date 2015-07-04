@@ -3,10 +3,42 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>coursera bioinformatics</title>
+
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/main.css" />
 </head>
 <body ng-app="app">
     <div ng-controller="MainController">
-        <bioinformatics-solver></bioinformatics-solver>
+        <div bioinformatics-solver class="container">
+            <div class="row" style="margin-top: 20px">
+                <div class="col-md-12">
+                    <span class="{{uploadMessage.class}}">{{uploadMessage.text}}</span>
+                    <span class="{{computeMessage.class}}">{{computeMessage.text}}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-md-3">
+                    <h3>Upload File <small>.txt only</small></h3>
+                    <input type="file" />
+                </div>
+                <div class="col col-md-3">
+                    <h3>Input Data Preview</h3>
+                    <p ng-repeat="line in uploadedData track by $index">
+                        {{$index}}: {{line}}
+                    </p>
+                </div>
+                <div class="col col-md-6 results">
+                    <h3>Computation result</h3>
+                    <p ng-bind="result">
+                        Loading...
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
+
+<script src="bower_components/angular/angular.min.js"></script>
+<script src="bower_components/underscore/underscore-min.js"></script>
+<script src="dist/bundle.js"></script>
 </body>
 </html>

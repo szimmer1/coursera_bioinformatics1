@@ -1,3 +1,4 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */
@@ -128,3 +129,83 @@
         }])
 
 })(angular || {});
+},{"./approx_patterns":2}],2:[function(require,module,exports){
+/**
+ * Created by mzimmerman on 7/3/15.
+ */
+
+var hammingDistance = require('./hamming_distance').compute;
+var error = require('./util').error;
+
+var approxPatterns = function(lines, callback) {
+    if (!lines || lines.length && lines.length < 3) return error();
+
+    var pattern = lines[0],
+        genome = lines[1],
+        d = lines[2];
+        res = [];
+    if (!pattern || !genome || isNaN(d)) return error();
+
+    for (var i = 0; i < genome.length - pattern.length + 1; i++) {
+        var genomeSlice = genome.slice(i,i+pattern.length);
+        if (hammingDistance([genomeSlice, pattern], callback) <= parseInt(d)) res.push(i);
+    }
+    return res;
+}
+
+module.exports = {
+    name : "Approximate Patterns in a String",
+    compute : approxPatterns
+}
+},{"./hamming_distance":3,"./util":4}],3:[function(require,module,exports){
+/**
+ * Created by mzimmerman on 7/3/15.
+ */
+
+/**
+ * compute fn should call callback(true) if error occurs, and
+ *      return the appropriate error message, otherwise
+ *      call callback(null)
+ * @param lines {Array}
+ * @param callback {Function}
+ * @returns {string}
+ */
+var hammond_distance = function(lines, callback) {
+    if (!lines || lines.length < 2) {
+        callback(true);
+        return "Bad data passed";
+    }
+    var str1 = lines[0];
+    var str2 = lines[1];
+    if (str1.length !== str2.length) {
+        callback(true);
+        return "Genome lengths unequal";
+    }
+    var res = 0;
+    for (var i = 0; i < str1.length; i++) {
+        if (str1[i] !== str2[i]) res++;
+    }
+    callback();
+    return res;
+}
+
+module.exports = {
+    name: "Hamming Distance",
+    compute: hammond_distance
+}
+},{}],4:[function(require,module,exports){
+/**
+ * Created by mzimmerman on 7/3/15.
+ */
+
+module.exports = {
+    /**
+     * Assumes callback of form callback([err])
+     * @param callback
+     */
+    error: function(callback) {
+        callback(true);
+        return "Bad data";
+    }
+}
+},{}]},{},[1]);
