@@ -7,7 +7,7 @@
     /**
      * CHANGE THIS TO YOUR DESIRED MODULE
      */
-    var bio = require('./approx_patterns');
+    var bio = require('./approx_frequent_words');
 
     angular.module('app', [])
         .directive('bioinformaticsSolver', function() {
@@ -55,7 +55,7 @@
                             if (!file.type.match("text*")) return uploadError();
                             var reader = new FileReader();
                             reader.onload = function(e) {
-                                scope.uploadedData = this.result.split('\n').slice(0,-1);
+                                scope.uploadedData = this.result.split('\n');
                                 scope.uploadMessage = {
                                     class:"label label-success",
                                     text:"Upload complete"

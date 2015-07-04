@@ -8,7 +8,7 @@
     /**
      * CHANGE THIS TO YOUR DESIRED MODULE
      */
-    var bio = require('./approx_patterns');
+    var bio = require('./approx_frequent_words');
 
     angular.module('app', [])
         .directive('bioinformaticsSolver', function() {
@@ -56,7 +56,7 @@
                             if (!file.type.match("text*")) return uploadError();
                             var reader = new FileReader();
                             reader.onload = function(e) {
-                                scope.uploadedData = this.result.split('\n').slice(0,-1);
+                                scope.uploadedData = this.result.split('\n');
                                 scope.uploadMessage = {
                                     class:"label label-success",
                                     text:"Upload complete"
@@ -137,7 +137,24 @@
         }])
 
 })(angular || {});
-},{"./approx_patterns":2}],2:[function(require,module,exports){
+},{"./approx_frequent_words":2}],2:[function(require,module,exports){
+/**
+ * Created by mzimmerman on 7/4/15.
+ */
+
+var error = require('./util').error,
+    count = require('./approx_patterns').compute;
+
+var approxPatternCount = function(lines, callback) {
+    if (!lines || lines.length && lines.length < 3) return error(callback);
+    return count(lines, callback).length;
+}
+
+module.exports = {
+    name: "Approximate Pattern Count",
+    compute: approxPatternCount
+}
+},{"./approx_patterns":3,"./util":5}],3:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */
@@ -146,13 +163,13 @@ var hammingDistance = require('./hamming_distance').compute;
 var error = require('./util').error;
 
 var approxPatterns = function(lines, callback) {
-    if (!lines || lines.length && lines.length < 3) return error();
+    if (!lines || lines.length && lines.length < 3) return error(callback);
 
     var pattern = lines[0],
         genome = lines[1],
         d = lines[2];
         res = [];
-    if (!pattern || !genome || isNaN(d)) return error();
+    if (!pattern || !genome || isNaN(d)) return error(callback);
 
     for (var i = 0; i < genome.length - pattern.length + 1; i++) {
         var genomeSlice = genome.slice(i,i+pattern.length);
@@ -165,7 +182,7 @@ module.exports = {
     name : "Approximate Patterns in a String",
     compute : approxPatterns
 }
-},{"./hamming_distance":3,"./util":4}],3:[function(require,module,exports){
+},{"./hamming_distance":4,"./util":5}],4:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */
@@ -201,7 +218,7 @@ module.exports = {
     name: "Hamming Distance",
     compute: hammond_distance
 }
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */

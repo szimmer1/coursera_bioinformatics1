@@ -6,13 +6,13 @@ var hammingDistance = require('./hamming_distance').compute;
 var error = require('./util').error;
 
 var approxPatterns = function(lines, callback) {
-    if (!lines || lines.length && lines.length < 3) return error();
+    if (!lines || lines.length && lines.length < 3) return error(callback);
 
     var pattern = lines[0],
         genome = lines[1],
         d = lines[2];
         res = [];
-    if (!pattern || !genome || isNaN(d)) return error();
+    if (!pattern || !genome || isNaN(d)) return error(callback);
 
     for (var i = 0; i < genome.length - pattern.length + 1; i++) {
         var genomeSlice = genome.slice(i,i+pattern.length);
