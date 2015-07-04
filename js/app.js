@@ -92,20 +92,28 @@
                             text:"Computation in progress"
                         }
                         scope.$apply();
-                        scope.result = scope.computer.compute(scope.uploadedData, function(err) {
-                            if (err) {
-                                scope.computeMessage = {
-                                    class:"label label-danger",
-                                    text:"Computation error"
+                        try {
+                            scope.result = scope.computer.compute(scope.uploadedData, function (err) {
+                                if (err) {
+                                    scope.computeMessage = {
+                                        class: "label label-danger",
+                                        text: "Computation error"
+                                    }
                                 }
-                            }
-                            else {
-                                scope.computeMessage = {
-                                    class: "label label-success",
-                                    text: "Computation success"
+                                else {
+                                    scope.computeMessage = {
+                                        class: "label label-success",
+                                        text: "Computation success"
+                                    }
                                 }
+                            })
+                        } catch (e) {
+                            scope.computeMessage = {
+                                class: "label label-danger",
+                                text: "Computation error"
                             }
-                        })
+                            console.error(e);
+                        }
                         scope.$apply();
                     }
 
