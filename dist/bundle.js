@@ -8,7 +8,7 @@
     /**
      * CHANGE THIS TO YOUR DESIRED MODULE
      */
-    var bio = require('./approx_frequent_words');
+    var bio = require('./mismatch_frequent_words');
 
     angular.module('app', [])
         .directive('bioinformaticsSolver', function() {
@@ -137,7 +137,7 @@
         }])
 
 })(angular || {});
-},{"./approx_frequent_words":2}],2:[function(require,module,exports){
+},{"./mismatch_frequent_words":6}],2:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/4/15.
  */
@@ -154,7 +154,7 @@ module.exports = {
     name: "Approximate Pattern Count",
     compute: approxPatternCount
 }
-},{"./approx_patterns":3,"./util":5}],3:[function(require,module,exports){
+},{"./approx_patterns":3,"./util":7}],3:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */
@@ -182,7 +182,66 @@ module.exports = {
     name : "Approximate Patterns in a String",
     compute : approxPatterns
 }
-},{"./hamming_distance":4,"./util":5}],4:[function(require,module,exports){
+},{"./hamming_distance":5,"./util":7}],4:[function(require,module,exports){
+/**
+ * Created by mzimmerman on 7/4/15.
+ */
+
+var hammingDistance = require('./hamming_distance').compute;
+
+var bases = ['A','C','G','T'];
+
+var patternToInt = function(pattern) {
+    var res = 0;
+    for (var i = 0; i < pattern.length; i++) {
+        res += bases.indexOf(pattern[pattern.length - i] * Math.pow(4,i));
+    }
+    return res;
+}
+
+var intToPattern = function(n) {
+    
+}
+
+function suffix(pattern) {
+    return pattern && pattern.slice(1);
+}
+
+/**
+ * Generator fn of possible patterns
+ * @param pattern
+ * @param d
+ * @return null if error, generator
+ */
+var neighbors = function(pattern, d) {
+    if (d === 0) {
+        return [pattern]
+    }
+    else if (pattern.length === 1) {
+        return ['A','C','T','G']
+    }
+    var neighborhood = [],
+        suffixNeighborhood = neighbors(suffix(pattern),d);
+    _.each(suffixNeighborhood, function(suff) {
+        if (hammingDistance([suff, suffix(pattern)], function(){}) < d) {
+            _.each(['A','C','T','G'], function(base) {
+                neighborhood.push(base+suff);
+            })
+        }
+        else {
+            neighborhood.push(pattern[0]+suff)
+        }
+    })
+    return neighborhood;
+}
+
+module.exports = {
+    name: "Frequency Array and Approximate Neighbors Fns",
+    intToPattern: intToPattern,
+    patternToInt: patternToInt,
+    neighbors: neighbors
+}
+},{"./hamming_distance":5}],5:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */
@@ -218,7 +277,71 @@ module.exports = {
     name: "Hamming Distance",
     compute: hammond_distance
 }
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+/**
+ * Created by mzimmerman on 7/4/15.
+ */
+
+var freqArrayFns = require('./frequency_array'),
+    approximatePatternCount = require('./approx_frequent_words').compute;
+var patternToInt = freqArrayFns.patternToInt,
+    intToPattern = freqArrayFns.intToPattern,
+    neighbors = freqArrayFns.neighbors;
+
+var f = function(lines, callback) {
+    debugger;
+    if (!lines || lines.length && lines.length < 2) return error(callback);
+    try {
+        var genome = lines[0],
+            kd = lines[1].split(' ').map(function (n) {
+                return parseInt(n)
+            });
+        var k = kd[0],
+            d = kd[1]
+    } catch (e) {
+        callback(true);
+        return "Bad data"
+    }
+    debugger;
+    var fArray = new Array(Math.pow(4,k)),
+        closeA = new Array(Math.pow(4,k)),
+        maxFreq = 0,
+        freqPatterns = [];
+    //initialize arrays to 0
+    for (var i = 0; i < fArray.length; i++) {
+        fArray[i] = closeA[i] = 0;
+    }
+    //iterate through windows and calculate close indeces
+    var neighborA, substr;
+    for (var i = 0; i < genome.length - k + 1; i++) {
+        substr = genome.slice(i,i+k);
+        neighborA = neighbors(substr,d);
+        _.each(neighborA, function(neighbor) {
+            closeA[patternToInt(neighbor)] = 1;
+        })
+    }
+    //iterate through close array and calculate approxPatternCount for neighbor k-mers
+    for (var i = 0; i < closeA.length; i++) {
+        if (closeA[i] === 1) {
+            fArray[i] = approximatePatternCount([intToPattern(i,k),genome,d], callback);
+            if (fArray[i] > maxFreq) maxFreq = fArray[i];
+        }
+    }
+    //aggregate most frequent patterns
+    for (var i = 0; i < fArray.length; i++) {
+        if (fArray[i] === maxFreq) {
+            freqPatterns.push(intToPattern(i,k))
+        }
+    }
+    callback();
+    return freqPatterns;
+}
+
+module.exports = {
+    name: "Frequent Words with Mismatches",
+    compute: f
+}
+},{"./approx_frequent_words":2,"./frequency_array":4}],7:[function(require,module,exports){
 /**
  * Created by mzimmerman on 7/3/15.
  */

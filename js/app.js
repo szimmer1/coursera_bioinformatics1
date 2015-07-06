@@ -7,7 +7,7 @@
     /**
      * CHANGE THIS TO YOUR DESIRED MODULE
      */
-    var bio = require('./approx_frequent_words');
+    var bio = require('./mismatch_frequent_words');
 
     angular.module('app', [])
         .directive('bioinformaticsSolver', function() {
