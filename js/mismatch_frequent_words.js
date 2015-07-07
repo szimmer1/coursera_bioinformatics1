@@ -2,13 +2,15 @@
  * Created by mzimmerman on 7/4/15.
  */
 
-var freqArrayFns = require('./frequency_array'),
+var neighbors = require('./frequency_array').neighbors,
     approximatePatternCount = require('./approx_frequent_words').compute;
-var patternToInt = freqArrayFns.patternToInt,
-    intToPattern = freqArrayFns.intToPattern,
-    neighbors = freqArrayFns.neighbors;
+var bioUtil = require('./bio_util');
 
-var f = function(lines, callback) {
+var patternToInt = bioUtil.patternToInt,
+    intToPattern = bioUtil.intToPattern,
+    reverseComp = bioUtil.reverseComp;
+
+var f = function(lines, allowReverseComp, callback) {
     debugger;
     if (!lines || lines.length && lines.length < 2) return error(callback);
     try {
@@ -22,7 +24,6 @@ var f = function(lines, callback) {
         callback(true);
         return "Bad data"
     }
-    debugger;
     var fArray = new Array(Math.pow(4,k)),
         closeA = new Array(Math.pow(4,k)),
         maxFreq = 0,
@@ -41,9 +42,15 @@ var f = function(lines, callback) {
         })
     }
     //iterate through close array and calculate approxPatternCount for neighbor k-mers
+    var neighborPattern;
     for (var i = 0; i < closeA.length; i++) {
         if (closeA[i] === 1) {
-            fArray[i] = approximatePatternCount([intToPattern(i,k),genome,d], callback);
+            neighborPattern = intToPattern(i,k);
+            fArray[i] = approximatePatternCount([neighborPattern,genome,d], callback);
+            //if allowing reverse complements, search for it as well
+            if (allowReverseComp) {
+                fArray[i] += approximatePatternCount([reverseComp(neighborPattern),genome,d], callback);
+            }
             if (fArray[i] > maxFreq) maxFreq = fArray[i];
         }
     }
@@ -57,7 +64,12 @@ var f = function(lines, callback) {
     return freqPatterns;
 }
 
+var c = function(lines, callback) {
+    return f(lines, true, callback);
+}
+
 module.exports = {
     name: "Frequent Words with Mismatches",
-    compute: f
+    mismatchFreqWords: f,
+    compute: c
 }

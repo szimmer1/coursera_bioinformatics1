@@ -3,20 +3,10 @@
  */
 
 var hammingDistance = require('./hamming_distance').compute;
+var bioUtil = require('./bio_util');
 
-var bases = ['A','C','G','T'];
-
-var patternToInt = function(pattern) {
-    var res = 0;
-    for (var i = 0; i < pattern.length; i++) {
-        res += bases.indexOf(pattern[pattern.length - i] * Math.pow(4,i));
-    }
-    return res;
-}
-
-var intToPattern = function(n) {
-    
-}
+var patternToInt = bioUtil.patternToInt,
+    intToPattern = bioUtil.intToPattern
 
 function suffix(pattern) {
     return pattern && pattern.slice(1);
@@ -50,9 +40,16 @@ var neighbors = function(pattern, d) {
     return neighborhood;
 }
 
+var findNeighbors = function(lines, callback) {
+    if (!lines || lines.length < 2) return callback(true);
+    var pattern = lines[0],
+        d = parseInt(lines[1]);
+    var A = neighbors(pattern,d);
+    return [A, A.length ]
+}
+
 module.exports = {
     name: "Frequency Array and Approximate Neighbors Fns",
-    intToPattern: intToPattern,
-    patternToInt: patternToInt,
-    neighbors: neighbors
+    neighbors: neighbors,
+    compute: findNeighbors
 }
